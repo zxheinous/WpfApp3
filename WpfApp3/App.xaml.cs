@@ -14,16 +14,13 @@ namespace PhoneBook
 
             ServiceCollection services = new ServiceCollection();
 
-            // Регистрация инфраструктурных сервисов (Lifetimes)
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<INavigationService, NavigationService>();
 
-            // Регистрация экранных модулей (ViewModels)
-            services.AddTransient<ContactsListViewModel>(); // Пересоздается при открытии заново
+            services.AddTransient<ContactsListViewModel>();
             services.AddTransient<AboutViewModel>();
-            services.AddSingleton<MainWindowViewModel>(); // Shell ViewModel живет постоянно
+            services.AddSingleton<MainWindowViewModel>();
 
-            // Регистрация главного окна
             services.AddSingleton<MainWindow>(sp =>
             {
                 MainWindow window = new MainWindow();
@@ -32,8 +29,6 @@ namespace PhoneBook
             });
 
             ServiceProvider provider = services.BuildServiceProvider();
-
-            // Ручной запуск окна Shell из контейнера зависимостей
             MainWindow mainWindow = provider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
