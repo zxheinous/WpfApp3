@@ -1,85 +1,41 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
 using System.Windows.Input;
-using PhoneBook.Models;
 
 namespace PhoneBook.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public class RelayCommand : ICommand
     {
-        public ObservableCollection<Contact> Contacts { get; }
+        private readonly Action _execute;
+        private readonly Func<bool>? _canExecute;
 
-        private string _name = string.Empty;
-
-        public string Name
+        public RelayCommand(
+            Action execute,
+            Func<bool>? canExecute = null)
         {
-            get => _name;
-            set => Set(ref _name, value);
+            _execute = execute;
+            _canExecute = canExecute;
         }
 
-        private string _phone = string.Empty;
-
-        public string Phone
+        public bool CanExecute(object? parameter)
         {
-            get => _phone;
-            set => Set(ref _phone, value);
+            return _canExecute?.Invoke() ?? true;
         }
 
-        private Contact? _selectedContact;
-
-        public Contact? SelectedContact
+        public void Execute(object? parameter)
         {
-            get => _selectedContact;
-            set => Set(ref _selectedContact, value);
+            _execute();
         }
 
-        public ICommand AddCommand { get; }
-        public ICommand DeleteCommand { get; }
-
-        public MainViewModel()
+        public event EventHandler? CanExecuteChanged
         {
-            Contacts = new ObservableCollection<Contact>();
-
-            AddCommand = new RelayCommand(
-                AddContact,
-                CanAddContact);
-
-            DeleteCommand = new RelayCommand(
-                DeleteContact,
-                CanDeleteContact);
-        }
-
-        private void AddContact()
-        {
-            Contact contact = new Contact(Name, Phone);
-
-            Contacts.Add(contact);
-
-            Name = string.Empty;
-            Phone = string.Empty;
-        }
-
-        private bool CanAddContact()
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-                return false;
-
-            if (string.IsNullOrWhiteSpace(Phone))
-                return false;
-
-            return true;
-        }
-
-        private void DeleteContact()
-        {
-            if (SelectedContact != null)
+            add
             {
-                Contacts.Remove(SelectedContact);
+                CommandManager.RequerySuggested += value;
             }
-        }
-
-        private bool CanDeleteContact()
-        {
-            return SelectedContact != null;
+            remove
+            {
+                CommandManager.RequerySuggested -= value;
+            }
         }
     }
 }

@@ -1,64 +1,41 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace PhoneBook.ViewModels
 {
-    public class RelayCommand : ICommand
+    // Базовый класс MVVM
+    public abstract class ObservableObject :
+        INotifyPropertyChanged
     {
-        private readonly Action _execute;
-        private readonly Func<bool>? _canExecute;
+        public event PropertyChangedEventHandler?
+            PropertyChanged;
 
-        public RelayCommand(
-            Action execute,
-            Func<bool>? canExecute = null)
+        protected void OnPropertyChanged(
+            [CallerMemberName] string? propertyName = null)
         {
-            _execute = execute;
-            _canExecute = canExecute;
+            PropertyChanged?.Invoke(
+                this,
+                new PropertyChangedEventArgs(propertyName));
         }
 
-        public bool CanExecute(object? parameter)
+        protected bool Set<T>(
+            ref T field,
+            T value,
+            [CallerMemberName] string? propertyName = null)
         {
-            return _canExecute?.Invoke() ?? true;
-        }
+            if (EqualityComparer<T>.Default.Equals(
+                field,
+                value))
+            {
+                return false;
+            }
 
-        public void Execute(object? parameter)
-        {
-            _execute.Invoke();
-        }
+            field = value;
 
-        public event EventHandler? CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
-    }
+            OnPropertyChanged(propertyName);
 
-    public class RelayCommand<T> : ICommand
-    {
-        private readonly Action<T?> _execute;
-        private readonly Predicate<T?>? _canExecute;
-
-        public RelayCommand(
-            Action<T?> execute,
-            Predicate<T?>? canExecute = null)
-        {
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object? parameter)
-        {
-            return _canExecute?.Invoke((T?)parameter) ?? true;
-        }
-
-        public void Execute(object? parameter)
-        {
-            _execute.Invoke((T?)parameter);
-        }
-
-        public event EventHandler? CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
+            return true;
         }
     }
 }

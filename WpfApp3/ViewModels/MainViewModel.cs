@@ -1,33 +1,112 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+using PhoneBook.Models;
+using PhoneBook.Services;
 
 namespace PhoneBook.ViewModels
 {
-    public abstract class ObservableObject : INotifyPropertyChanged
+    public class MainViewModel : ObservableObject
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private readonly IDialogService _dialogService;
 
-        protected virtual void OnPropertyChanged(
-            [CallerMemberName] string? propertyName = null)
+        public ObservableCollection<Contact> Contacts { get; }
+
+        private string _name = string.Empty;
+
+        public string Name
         {
-            PropertyChanged?.Invoke(
-                this,
-                new PropertyChangedEventArgs(propertyName));
+            get => _name;
+            set => Set(ref _name, value);
         }
 
-        protected bool Set<T>(
-            ref T field,
-            T value,
-            [CallerMemberName] string? propertyName = null)
+        private string _phone = string.Empty;
+
+        public string Phone
         {
-            if (EqualityComparer<T>.Default.Equals(field, value))
-                return false;
+            get => _phone;
+            set => Set(ref _phone, value);
+        }
 
-            field = value;
+        private Contact? _selectedContact;
 
-            OnPropertyChanged(propertyName);
+        public Contact? SelectedContact
+        {
+            get => _selectedContact;
+            set => Set(ref _selectedContact, value);
+        }
 
-            return true;
+        public ICommand AddCommand { get; }
+
+        public ICommand DeleteCommand { get; }
+
+        public MainViewModel(IDialogService dialogService)
+        {
+            _dialogService = dialogService;
+
+            Contacts = new ObservableCollection<Contact>();
+
+            AddCommand = new RelayCommand(AddContact);
+
+            DeleteCommand = new RelayCommand(DeleteContact);
+        }
+
+        private void AddContact()
+        {
+            _dialogService.ShowInfo("Работает");
+
+            if (string.IsNullOrWhiteSpace(Name) ||
+                string.IsNullOrWhiteSpace(Phone))
+            {
+                _dialogService.ShowWarning(
+                    "Заполните все поля.");
+
+                return;
+            }
+
+            if (Contacts.Any(c => c.Phone == Phone))
+            {
+                _dialogService.ShowWarning(
+                    "Контакт уже существует.");
+
+                return;
+            }
+
+            Contact contact = new Contact(Name, Phone);
+
+            if (!contact.Validate())
+            {
+                _dialogService.ShowError(
+                    "Неверный формат телефона.");
+
+                return;
+            }
+
+            Contacts.Add(contact);
+
+            _dialogService.ShowInfo(
+                "Контакт добавлен.");
+
+            Name = string.Empty;
+            Phone = string.Empty;
+        }
+
+        private void DeleteContact()
+        {
+            if (SelectedContact == null)
+                return;
+
+            bool result =
+                _dialogService.ShowConfirmation(
+                    $"Удалить {SelectedContact.Name}?");
+
+            if (result)
+            {
+                Contacts.Remove(SelectedContact);
+
+                _dialogService.ShowInfo(
+                    "Контакт удалён.");
+            }
         }
     }
 }
