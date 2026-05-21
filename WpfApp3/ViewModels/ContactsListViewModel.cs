@@ -9,11 +9,11 @@ namespace PhoneBook.ViewModels
     public class ContactsListViewModel : ObservableObject
     {
         private readonly IDialogService _dialogService;
+        private readonly INavigationService _navigationService;
 
         public ObservableCollection<Contact> Contacts { get; }
 
         private string _name = string.Empty;
-
         public string Name
         {
             get => _name;
@@ -21,7 +21,6 @@ namespace PhoneBook.ViewModels
         }
 
         private string _phone = string.Empty;
-
         public string Phone
         {
             get => _phone;
@@ -29,7 +28,6 @@ namespace PhoneBook.ViewModels
         }
 
         private Contact? _selectedContact;
-
         public Contact? SelectedContact
         {
             get => _selectedContact;
@@ -37,38 +35,29 @@ namespace PhoneBook.ViewModels
         }
 
         public ICommand AddCommand { get; }
-
         public ICommand DeleteCommand { get; }
 
-        public ContactsListViewModel(IDialogService dialogService)
+        public ContactsListViewModel(IDialogService dialogService, INavigationService navigationService)
         {
             _dialogService = dialogService;
+            _navigationService = navigationService;
 
             Contacts = new ObservableCollection<Contact>();
-
             AddCommand = new RelayCommand(AddContact);
-
             DeleteCommand = new RelayCommand(DeleteContact);
         }
 
         private void AddContact()
         {
-            _dialogService.ShowInfo("Работает");
-
-            if (string.IsNullOrWhiteSpace(Name) ||
-                string.IsNullOrWhiteSpace(Phone))
+            if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Phone))
             {
-                _dialogService.ShowWarning(
-                    "Заполните все поля.");
-
+                _dialogService.ShowWarning("Заполните все поля.");
                 return;
             }
 
             if (Contacts.Any(c => c.Phone == Phone))
             {
-                _dialogService.ShowWarning(
-                    "Контакт уже существует.");
-
+                _dialogService.ShowWarning("Контакт уже существует.");
                 return;
             }
 
@@ -76,16 +65,12 @@ namespace PhoneBook.ViewModels
 
             if (!contact.Validate())
             {
-                _dialogService.ShowError(
-                    "Неверный формат телефона.");
-
+                _dialogService.ShowError("Неверный формат телефона.");
                 return;
             }
 
             Contacts.Add(contact);
-
-            _dialogService.ShowInfo(
-                "Контакт добавлен.");
+            _dialogService.ShowInfo("Контакт добавлен.");
 
             Name = string.Empty;
             Phone = string.Empty;
@@ -96,16 +81,12 @@ namespace PhoneBook.ViewModels
             if (SelectedContact == null)
                 return;
 
-            bool result =
-                _dialogService.ShowConfirmation(
-                    $"Удалить {SelectedContact.Name}?");
+            bool result = _dialogService.ShowConfirmation($"Удалить {SelectedContact.Name}?");
 
             if (result)
             {
                 Contacts.Remove(SelectedContact);
-
-                _dialogService.ShowInfo(
-                    "Контакт удалён.");
+                _dialogService.ShowInfo("Контакт удалён.");
             }
         }
     }

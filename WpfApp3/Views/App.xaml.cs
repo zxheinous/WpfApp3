@@ -8,45 +8,33 @@ namespace PhoneBook
 {
     public partial class App : Application
     {
-        protected override void OnStartup(
-            StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            // Создание контейнера DI
-            ServiceCollection services =
-                new ServiceCollection();
+            ServiceCollection services = new ServiceCollection();
 
-            // Singleton:
-            // один экземпляр на всё приложение
-            services.AddSingleton<IDialogService,
-                                  DialogService>();
+            // Регистрация инфраструктурных сервисов (Lifetimes)
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<INavigationService, NavigationService>();
 
-            // Transient:
-            // новый экземпляр при запросе
-            services.AddTransient<ContactsListViewModel>();
+            // Регистрация экранных модулей (ViewModels)
+            services.AddTransient<ContactsListViewModel>(); // Пересоздается при открытии заново
+            services.AddTransient<AboutViewModel>();
+            services.AddSingleton<MainWindowViewModel>(); // Shell ViewModel живет постоянно
 
-            // Главное окно
+            // Регистрация главного окна
             services.AddSingleton<MainWindow>(sp =>
             {
-                MainWindow window =
-                    new MainWindow();
-
-                // Передача ViewModel через DI
-                window.DataContext =
-                    sp.GetRequiredService<ContactsListViewModel>();
-
+                MainWindow window = new MainWindow();
+                window.DataContext = sp.GetRequiredService<MainWindowViewModel>();
                 return window;
             });
 
-            // Создание ServiceProvider
-            ServiceProvider provider =
-                services.BuildServiceProvider();
+            ServiceProvider provider = services.BuildServiceProvider();
 
-            // Запуск главного окна
-            MainWindow mainWindow =
-                provider.GetRequiredService<MainWindow>();
-
+            // Ручной запуск окна Shell из контейнера зависимостей
+            MainWindow mainWindow = provider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
     }

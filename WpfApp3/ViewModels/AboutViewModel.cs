@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PhoneBook.ViewModels
+﻿namespace PhoneBook.ViewModels
 {
-    internal class AboutViewModel
+    public class AboutViewModel : ObservableObject
     {
+        public string AppName => "Телефонная книга MVVM";
+        public string Version => "Версия 2.0 (С навигацией ViewModel-First)";
     }
 }
