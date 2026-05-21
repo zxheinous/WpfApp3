@@ -2,7 +2,6 @@
 
 namespace PhoneBook.Services
 {
-    // Реализация сервиса диалоговых окон
     public class DialogService : IDialogService
     {
         public void ShowInfo(

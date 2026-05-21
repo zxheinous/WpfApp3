@@ -1,8 +1,5 @@
 ﻿namespace PhoneBook.Services
 {
-    // Интерфейс сервиса диалоговых окон
-    // ViewModel работает только с интерфейсом,
-    // а не с MessageBox напрямую
     public interface IDialogService
     {
         void ShowInfo(

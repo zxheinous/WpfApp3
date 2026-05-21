@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace PhoneBook.ViewModels
 {
-    // Базовый класс MVVM
     public abstract class ObservableObject :
         INotifyPropertyChanged
     {
