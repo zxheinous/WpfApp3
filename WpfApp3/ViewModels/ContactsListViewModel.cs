@@ -6,7 +6,7 @@ using PhoneBook.Services;
 
 namespace PhoneBook.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public class ContactsListViewModel : ObservableObject
     {
         private readonly IDialogService _dialogService;
 
@@ -40,7 +40,7 @@ namespace PhoneBook.ViewModels
 
         public ICommand DeleteCommand { get; }
 
-        public MainViewModel(IDialogService dialogService)
+        public ContactsListViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
 

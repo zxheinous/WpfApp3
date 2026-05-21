@@ -24,7 +24,7 @@ namespace PhoneBook
 
             // Transient:
             // новый экземпляр при запросе
-            services.AddTransient<MainViewModel>();
+            services.AddTransient<ContactsListViewModel>();
 
             // Главное окно
             services.AddSingleton<MainWindow>(sp =>
@@ -34,7 +34,7 @@ namespace PhoneBook
 
                 // Передача ViewModel через DI
                 window.DataContext =
-                    sp.GetRequiredService<MainViewModel>();
+                    sp.GetRequiredService<ContactsListViewModel>();
 
                 return window;
             });
