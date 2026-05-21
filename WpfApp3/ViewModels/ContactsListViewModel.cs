@@ -10,8 +10,9 @@ namespace PhoneBook.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly INavigationService _navigationService;
+        private readonly PhoneBookDbContext _dbContext;
 
-        public ObservableCollection<Contact> Contacts { get; }
+        public ObservableCollection<Contact> Contacts { get; set; }
 
         private string _name = string.Empty;
         public string Name
@@ -37,12 +38,13 @@ namespace PhoneBook.ViewModels
         public ICommand AddCommand { get; }
         public ICommand DeleteCommand { get; }
 
-        public ContactsListViewModel(IDialogService dialogService, INavigationService navigationService)
+        public ContactsListViewModel(IDialogService dialogService, INavigationService navigationService, PhoneBookDbContext dbContext)
         {
             _dialogService = dialogService;
             _navigationService = navigationService;
+            _dbContext = dbContext;
+            Contacts = new ObservableCollection<Contact>(_dbContext.Contacts.ToList());
 
-            Contacts = new ObservableCollection<Contact>();
             AddCommand = new RelayCommand(AddContact);
             DeleteCommand = new RelayCommand(DeleteContact);
         }
@@ -55,13 +57,13 @@ namespace PhoneBook.ViewModels
                 return;
             }
 
-            if (Contacts.Any(c => c.Phone == Phone))
+            if (_dbContext.Contacts.Any(c => c.Phone == Phone))
             {
-                _dialogService.ShowWarning("Контакт уже существует.");
+                _dialogService.ShowWarning("Контакт с таким номером уже существует.");
                 return;
             }
 
-            Contact contact = new Contact(Name, Phone);
+            Contact contact = new Contact { Name = Name, Phone = Phone };
 
             if (!contact.Validate())
             {
@@ -69,8 +71,11 @@ namespace PhoneBook.ViewModels
                 return;
             }
 
+            _dbContext.Contacts.Add(contact);
+            _dbContext.SaveChanges();
+
             Contacts.Add(contact);
-            _dialogService.ShowInfo("Контакт добавлен.");
+            _dialogService.ShowInfo("Контакт успешно сохранен в базу данных.");
 
             Name = string.Empty;
             Phone = string.Empty;
@@ -81,12 +86,15 @@ namespace PhoneBook.ViewModels
             if (SelectedContact == null)
                 return;
 
-            bool result = _dialogService.ShowConfirmation($"Удалить {SelectedContact.Name}?");
+            bool result = _dialogService.ShowConfirmation($"Удалить {SelectedContact.Name} из базы данных?");
 
             if (result)
             {
+                _dbContext.Contacts.Remove(SelectedContact);
+                _dbContext.SaveChanges();
+
                 Contacts.Remove(SelectedContact);
-                _dialogService.ShowInfo("Контакт удалён.");
+                _dialogService.ShowInfo("Контакт удалён из базы данных.");
             }
         }
     }

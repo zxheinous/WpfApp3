@@ -1,37 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using PhoneBook.ViewModels;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
-namespace PhoneBook.Models
+namespace PhoneBook.Models;
+
+public partial class Contact
 {
-    public class Contact : ObservableObject
+    public int Id { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public string Phone { get; set; } = null!;
+
+    public bool Validate()
     {
-        private string _name;
-
-        public string Name
-        {
-            get => _name;
-            set => Set(ref _name, value);
-        }
-
-        private string _phone;
-
-        public string Phone
-        {
-            get => _phone;
-            set => Set(ref _phone, value);
-        }
-
-        public Contact(string name, string phone)
-        {
-            _name = name;
-            _phone = phone;
-        }
-
-        public bool Validate()
-        {
-            string pattern = @"^(\+7|8)?\d{10}$";
-
-            return Regex.IsMatch(Phone, pattern);
-        }
+        string pattern = @"^(\+7|8)?\d{10}$";
+        return Regex.IsMatch(Phone, pattern);
     }
 }

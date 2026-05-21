@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using PhoneBook.Models;
 using PhoneBook.Services;
 using PhoneBook.ViewModels;
 using System;
@@ -14,16 +16,16 @@ namespace PhoneBook
 
             ServiceCollection services = new ServiceCollection();
 
-            // Регистрация инфраструктурных сервисов (Lifetimes)
+            services.AddDbContext<PhoneBookDbContext>(options =>
+                options.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=PhoneBookDB_ИВАНОВ_2307А1;Integrated Security=True;TrustServerCertificate=True"));
+
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<INavigationService, NavigationService>();
 
-            // Регистрация экранных модулей (ViewModels)
-            services.AddTransient<ContactsListViewModel>(); // Пересоздается при открытии заново
+            services.AddTransient<ContactsListViewModel>();
             services.AddTransient<AboutViewModel>();
-            services.AddSingleton<MainWindowViewModel>(); // Shell ViewModel живет постоянно
+            services.AddSingleton<MainWindowViewModel>();
 
-            // Регистрация главного окна
             services.AddSingleton<MainWindow>(sp =>
             {
                 MainWindow window = new MainWindow();
@@ -33,7 +35,6 @@ namespace PhoneBook
 
             ServiceProvider provider = services.BuildServiceProvider();
 
-            // Ручной запуск окна Shell из контейнера зависимостей
             MainWindow mainWindow = provider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
