@@ -2,16 +2,14 @@
 
 namespace PhoneBook.Views
 {
+    /// <summary>
+    /// Логика взаимодействия для ContactEditView.xaml
+    /// </summary>
     public partial class ContactEditView : UserControl
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-
         public ContactEditView()
         {
-            System.Windows.Application.LoadComponent(this, new System.Uri("/PhoneBook;component/Views/ContactEditView.xaml", System.UriKind.Relative));
+            InitializeComponent();
         }
     }
 }
