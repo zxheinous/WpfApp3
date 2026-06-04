@@ -10,5 +10,8 @@
         <DataTemplate DataType="{x:Type vm:AboutViewModel}">
             <v:AboutView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ContactEditViewModel}">
+            <v:ContactEditView />
+        </DataTemplate>
     </Application.Resources>
 </Application>

@@ -25,6 +25,10 @@ namespace PhoneBook
             services.AddTransient<ContactsListViewModel>();
             services.AddTransient<AboutViewModel>();
             services.AddSingleton<MainWindowViewModel>();
+            services.AddTransient<ContactsListViewModel>();
+            services.AddTransient<AboutViewModel>();
+            services.AddTransient<ContactEditViewModel>();
+            services.AddSingleton<MainWindowViewModel>();
 
             services.AddSingleton<MainWindow>(sp =>
             {
